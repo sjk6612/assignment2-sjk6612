@@ -34,9 +34,18 @@ int mdadm_mount(void) {
 
   if (mounted_status == 1){
     return -1;
+
   } 
   // use the 
-  return 0;
+  uint32_t op = create_op(0,0,JBOD_MOUNT, 0);
+  int final = jbod_operation(op, NULL);
+  
+  if (final == 0){
+    mounted_status = 1;
+    return 1;
+  } else{
+    return -1;
+  }
 }
 
 int mdadm_unmount(void) {
