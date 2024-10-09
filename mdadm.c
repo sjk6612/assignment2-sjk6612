@@ -11,7 +11,7 @@
 // if you are inside the block of a block, you want to make sure that you are not in a differnt block
 
 
-static int mounted_status = 0;
+static int mount  = 0;
 //int temp[32] = 
 
 uint32_t create_op(uint32_t DiskID, uint32_t BlockID, uint32_t Command, uint32_t Reserved) {
@@ -32,16 +32,15 @@ uint32_t create_op(uint32_t DiskID, uint32_t BlockID, uint32_t Command, uint32_t
 
 int mdadm_mount(void) {
 
-  if (mounted_status == 1){
-    return -1;
-
+  if (mount == 1){
+    return -1; // already mounted 
   } 
   // use the 
   uint32_t op = create_op(0,0,JBOD_MOUNT, 0);
   int final = jbod_operation(op, NULL);
   
   if (final == 0){
-    mounted_status = 1;
+    mount = 1;
     return 1;
   } else{
     return -1;
@@ -49,13 +48,31 @@ int mdadm_mount(void) {
 }
 
 int mdadm_unmount(void) {
-  //Complete your code here
-  return 0;
+  if (mount == 1){
+    return -1;  
+  }
 
+  uint32_t op = create_op(0,0,JBOD_UNMOUNT, 0);
+  int final = jbod_operation(op, NULL);
+
+  if (final == 0){
+    mount = 0;
+    return 1;
+  } else{
+    return -1;
+  }
 }
 
 int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   //Complete your code here, take from the start_addr for read_len and move to read_buf
   // edge cases are in pdf
-  return 0;
+  
+  if (mount == 0){ // if system is unmounted
+    return -3;
+  }
+
+  int i;
+  for (i=0;i<read_len;i++){
+
+  }
 }
