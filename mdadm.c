@@ -16,17 +16,16 @@ static int mount  = 0;
 
 uint32_t create_op(uint32_t DiskID, uint32_t BlockID, uint32_t Command, uint32_t Reserved) {
   //DiskID
-  uint32_t op = 0; // op = 0
-  op = op | Command; // op = 1111
-  op = op << 8; // 1111 00000000
-  op = op | BlockID; // 1111 11111111
-  op = op << 8; // 1111 11111111 00000000
-  op = op | DiskID; // 1111 11111111 11111111  
-  op = op << 12; // 1111 11111111 11111111 000000000000 
+  uint32_t op = 0; // 00000000 00000000 00000000 00000000
+  op = op | Command; // 00000000 00000000 00000000 11111111
+  op = op << 8; // 00000000 00000000 11111111 00000000
+  op = op | BlockID; // 00000000 00000000 11111111 11111111
+  op = op << 4; // 000000000 00001111 11111111 11110000
+  op = op | DiskID; // 000000000000 11111111 11111111 1111 : reserved, command, blockID, diskID
   return op;
 }
 // you mount a file for the file system to have access to it
-// a disk is broken up into blocks and each block is the size of 256
+// a disk is broken up into blocks and each block is the size of 
 // total memory is 2^20 bytes
 
 
@@ -65,14 +64,18 @@ int mdadm_unmount(void) {
 
 int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   //Complete your code here, take from the start_addr for read_len and move to read_buf
-  // edge cases are in pdf
   
+  // edge cases 
+  if (read_len>1024){ // if read_len exceeds 1024 bytes
+    return -2;
+  }
   if (mount == 0){ // if system is unmounted
     return -3;
   }
-
+  return 1;
+  /*
+  int bytes = 0; // number to be returned at the end of the function 
   int i;
-  for (i=0;i<read_len;i++){
-
-  }
+  */
+  // printf("%u\n", start_addr);
 }
