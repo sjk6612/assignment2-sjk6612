@@ -31,29 +31,26 @@ uint32_t create_op(uint32_t DiskID, uint32_t BlockID, uint32_t Command, uint32_t
 
 int mdadm_mount(void) {
 
-  if (mount == 1){
+  if (mount==1){
     return -1; // already mounted 
   } 
   // use the 
   uint32_t op = create_op(0,0,JBOD_MOUNT, 0);
   int final = jbod_operation(op, NULL);
-  
   if (final == 0){
     mount = 1;
     return 1;
-  } else{
+  } else {
     return -1;
   }
 }
 
 int mdadm_unmount(void) {
-  if (mount == 1){
+  if (mount == 0){
     return -1;  
   }
-
   uint32_t op = create_op(0,0,JBOD_UNMOUNT, 0);
   int final = jbod_operation(op, NULL);
-
   if (final == 0){
     mount = 0;
     return 1;
@@ -65,6 +62,7 @@ int mdadm_unmount(void) {
 int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   //Complete your code here, take from the start_addr for read_len and move to read_buf
   
+  // int bytes = 0;
   // edge cases 
   if (read_len>1024){ // if read_len exceeds 1024 bytes
     return -2;
@@ -73,9 +71,4 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
     return -3;
   }
   return 1;
-  /*
-  int bytes = 0; // number to be returned at the end of the function 
-  int i;
-  */
-  // printf("%u\n", start_addr);
 }
