@@ -69,8 +69,8 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   uint32_t offset = (start_addr % JBOD_BLOCK_SIZE); // where in the block you start
   uint32_t end_addr = (start_addr + read_len);
   
-  uint32_t *temp_block = NULL;
-  uint32_t temp_buffer[256] = 0;
+  // uint32_t *temp_block = NULL;
+  uint8_t temp_buffer[256];
 
   // edge cases: start address is greater than 1mb, end address is start address + read_len 
   if (end_addr > 1048576){ // if address space exceeds 1mb
@@ -88,13 +88,18 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   while (bytes_left > 0){  
     uint32_t Curr_Disk = create_op(Disk, 0, JBOD_SEEK_TO_DISK, 0); // starting address
     uint32_t Curr_Block = create_op(0, Block, JBOD_SEEK_TO_BLOCK, 0); // starting address 
+    jbod_operation(Curr_Disk, NULL);
+    jbod_operation(Curr_Block, NULL);
 
     uint32_t read = create_op(Disk, Block, JBOD_READ_BLOCK, 0);
-    uint32_t op = jbod_operation(read, &temp_buffer); // copies data and puts it in the 
+    uint32_t op = jbod_operation(read, temp_buffer); // copies data and puts it in the 
     if (op == -1){
       return -1;
     }
-    
+    memcpy(read_buf, temp_buffer + offset, JBOD_BLOCK_SIZE - offset);
+    read_buf += (JBOD_BLOCK_SIZE - offset);
+
   return read_len;
   }
+  return read_len;
 }
