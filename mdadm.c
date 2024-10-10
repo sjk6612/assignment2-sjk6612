@@ -79,9 +79,13 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
 
   while (bytes_left > 0){  
     uint32_t Curr_Disk = create_op(Disk, 0, JBOD_SEEK_TO_DISK, 0); // starting address
-    uint32_t Curr_Block = create_op(Disk, Block, JBOD_SEEK_TO_BLOCK, 0); // starting address 
-    jbod_operation(Curr_Block);
-    // bytes_left -=1;
+    uint32_t Curr_Block = create_op(0, Block, JBOD_SEEK_TO_BLOCK, 0); // starting address 
+    
+
+    if (offset == 255){ // read the block and put it in read_buffer
+      uint32_t read = create_op(Disk, Block, JBOD_READ_BLOCK, 0);
+      jbod_operation(read, read_buf)
+    }
     
   return read_len;
   }
