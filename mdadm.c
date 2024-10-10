@@ -34,10 +34,10 @@ int mdadm_mount(void) {
   if (mount==1){
     return -1; // already mounted 
   } 
-  // use the 
-  uint32_t op = create_op(0,0,JBOD_MOUNT, 0);
-  int final = jbod_operation(op, NULL);
-  if (final == 0){
+
+  uint32_t op = create_op(0,0,JBOD_MOUNT, 0); // create an operator
+  int final = jbod_operation(op, NULL); // create jbod_operation
+  if (final == 0){ // if opertion return 0
     mount = 1;
     return 1;
   } else {
@@ -49,9 +49,9 @@ int mdadm_unmount(void) {
   if (mount == 0){
     return -1;  
   }
-  uint32_t op = create_op(0,0,JBOD_UNMOUNT, 0);
+  uint32_t op = create_op(0,0,JBOD_UNMOUNT, 0); 
   int final = jbod_operation(op, NULL);
-  if (final == 0){
+  if (final == 0){ // if operation return 1 
     mount = 0;
     return 1;
   } else{
@@ -59,10 +59,10 @@ int mdadm_unmount(void) {
   }
 }
 
+
+
 int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   //Complete your code here, take from the start_addr for read_len and move to read_buf
-  
-  // int bytes = 0;
   // edge cases 
   if (read_len>1024){ // if read_len exceeds 1024 bytes
     return -2;
@@ -70,5 +70,17 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   if (mount == 0){ // if system is unmounted
     return -3;
   }
-  return 1;
+// 000000000000 11111111 11111111 1111 
+  int bytes_left = read_len;
+  uint32_t Disk = start_addr / JBOD_DISK_SIZE; // starting disk
+  uint32_t Block = start_addr / JBOD_BLOCK_SIZE; // starting block
+  int temp = start_addr % JBOD_NUM_BLOCKS_PER_DISK; // position in block 
+
+  while (bytes_left > 0){  
+    uint32_t op = create_op(Disk, Block, JBOD_SEEK_TO_DISK, 0); // starting address
+
+    bytes_left -=1;
+    
+
+  }
 }
