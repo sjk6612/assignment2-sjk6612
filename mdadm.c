@@ -63,28 +63,36 @@ int mdadm_unmount(void) {
 
 int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
   //Complete your code here, take from the start_addr for read_len and move to read_buf
-  // edge cases 
+  int bytes_left = read_len;
+  uint32_t Disk = start_addr / JBOD_DISK_SIZE; // starting disk
+  uint32_t Block = (start_addr % JBOD_DISK_SIZE) / JBOD_BLOCK_SIZE; // starting block
+  uint32_t offset = (start_addr % JBOD_BLOCK_SIZE); // where in the block you start
+  uint32_t end_addr = (start_addr + read_len);
+  
+  uint32_t *temp_block = NULL;
+  uint32_t temp_buffer[256] = 0;
+
+  // edge cases: start address is greater than 1mb, end address is start address + read_len 
+  if (end_addr > 1048576){ // if address space exceeds 1mb
+    return -1;
+  }
   if (read_len>1024){ // if read_len exceeds 1024 bytes
     return -2;
   }
   if (mount == 0){ // if system is unmounted
     return -3;
   }
-// 000000000000 11111111 11111111 1111 
-  int bytes_left = read_len;
-  uint32_t Disk = start_addr / JBOD_DISK_SIZE; // starting disk
-  uint32_t Block = (start_addr % JBOD_DISK_SIZE) / JBOD_BLOCK_SIZE; // starting block
-  uint32_t offset = (start_addr % JBOD_BLOCK_SIZE);
-  
 
+// 000000000000 11111111 11111111 1111 
+  
   while (bytes_left > 0){  
     uint32_t Curr_Disk = create_op(Disk, 0, JBOD_SEEK_TO_DISK, 0); // starting address
     uint32_t Curr_Block = create_op(0, Block, JBOD_SEEK_TO_BLOCK, 0); // starting address 
-    
 
-    if (offset == 255){ // read the block and put it in read_buffer
-      uint32_t read = create_op(Disk, Block, JBOD_READ_BLOCK, 0);
-      JBOD_READ_BLOCK(read, read_buf)
+    uint32_t read = create_op(Disk, Block, JBOD_READ_BLOCK, 0);
+    uint32_t op = jbod_operation(read, &temp_buffer); // copies data and puts it in the 
+    if (op == -1){
+      return -1;
     }
     
   return read_len;
