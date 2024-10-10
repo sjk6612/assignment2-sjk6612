@@ -84,7 +84,7 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
 
     if (offset == 255){ // read the block and put it in read_buffer
       uint32_t read = create_op(Disk, Block, JBOD_READ_BLOCK, 0);
-      jbod_operation(read, read_buf)
+      JBOD_READ_BLOCK(read, read_buf)
     }
     
   return read_len;
