@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall -I. -fpic -g -fbounds-check -Werror
+CFLAGS=-c -Wall -I. -fpic -g -fbounds-check -Werror -ggdb
 LDFLAGS=-L.
 LIBS=-lcrypto
 
