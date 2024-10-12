@@ -59,6 +59,10 @@ int mdadm_unmount(void) {
   }
 }
 
+void calculate_position(uint32_t *bytes_left, uint32_t *addr){
+
+}
+
 
 
 int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
@@ -69,7 +73,7 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
 
   uint32_t bytes_left = read_len;
   // uint32_t bytes_already_read = 0;
-  uint32_t *curr_addr = &start_addr;
+  uint32_t curr_addr = start_addr;
   uint32_t end_addr = start_addr + read_len;
   uint8_t temp_buffer[JBOD_BLOCK_SIZE];
   
@@ -107,29 +111,20 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
       return -1;
     }
 
-    //
-    uint32_t block_bytes = JBOD_BLOCK_SIZE - offset; // bytes within the block 
-    if (bytes_left < block_bytes){ // if end addr is in the same block, 
-      block_bytes = bytes_left;
-    }
-
     curr_addr += (JBOD_BLOCK_SIZE - offset); // move current address to the end of where you just read in the block
-
-    // if you are within a block
-    if ( offset < end_addr % JBOD_BLOCK_SIZE  && read_len < JBOD_BLOCK_SIZE){ // start end is less than 
-      memcpy(read_buf, temp_buffer + offset, offset+read_len); // put what you need into the read buf
-      read_buf += (JBOD_BLOCK_SIZE - offset); // add the read block by the size needed
+    
+    if (offset + read_len < JBOD_BLOCK_SIZE){ // if in the same block
+      memcpy(read_buf, temp_buffer + offset, offset+read_len); 
+      printf("hello world \n");
       bytes_left = 0;
-      return read_len;
     }
-
-    // if are going across blocks
+      // memcpy(read_buf, temp_buffer + offset, JBOD_BLOCK_SIZE-offset); // put what you need into the read buf
+      // read_buf += (JBOD_BLOCK_SIZE - offset); // add the read block by the size needed
+      // bytes_left = 0;
 
     if (Block == JBOD_NUM_BLOCKS_PER_DISK){ // if you're at the last block, go to the next disk
       Disk++;
     }
-    return read_len;
-
   }
   return read_len;
 }
