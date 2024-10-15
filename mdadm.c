@@ -117,7 +117,7 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
      return -1;
    } // increasing block by 1
 
-    if (offset + bytes_left <= JBOD_BLOCK_SIZE){ // in the same block
+    if (offset + bytes_left <= JBOD_BLOCK_SIZE){ // in the same block or final block
       memcpy(read_buf + bytes_read, temp_buffer + offset, end_addr - curr_addr);
       return read_len;
     } else { // switching blocks
@@ -131,6 +131,7 @@ int mdadm_read(uint32_t start_addr, uint32_t read_len, uint8_t *read_buf)  {
     Disk = curr_addr / JBOD_DISK_SIZE; // current disk
     Block = (curr_addr % JBOD_DISK_SIZE) / JBOD_BLOCK_SIZE; // current block
     offset = (curr_addr % JBOD_BLOCK_SIZE); // new offset
+    
    }
   return read_len;
 }
